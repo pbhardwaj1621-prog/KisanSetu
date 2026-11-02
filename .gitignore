@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+__pycache__/
+venv/
+.venv/
+ml-service/models/*.joblib
+ml-service/models/*.pkl
+ml-service/data/raw/*
+ml-service/data/processed/*
+!ml-service/**/.gitkeep

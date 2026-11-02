@@ -1,0 +1,2 @@
+-- TODO: MySQL tables
+-- users, listings, offers, messages, contracts

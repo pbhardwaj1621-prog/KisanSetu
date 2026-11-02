@@ -1,0 +1,10 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+
+# Model train karte waqt uncomment karo:
+# pandas
+# numpy
+# scikit-learn
+# joblib
+# matplotlib
