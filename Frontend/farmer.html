@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kisan Setu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a class="logo" href="index.html">🌉 <span data-lang="title"></span></a>
+    <div>
+      <button onclick="setLang('hi')">हिंदी</button>
+      <button onclick="setLang('en')">English</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="step1">
+      <h1 data-lang="t1"></h1>
+      <label for="mobile" data-lang="mobile"></label>
+      <input id="mobile" type="tel" maxlength="10" inputmode="numeric">
+      <button class="bada" onclick="sendOtp()" data-lang="sendotp"></button>
+
+      <div id="otpbox" hidden>
+        <label for="otp" data-lang="otp"></label>
+        <input id="otp" type="tel" maxlength="4" inputmode="numeric">
+        <button class="bada" onclick="verifyOtp()" data-lang="verify"></button>
+      </div>
+      <p class="msg" id="msg"></p>
+    </section>
+
+    <section id="step2" hidden>
+      <h1 data-lang="t2"></h1>
+            <label for="name" data-lang="name"></label>
+      <div class="row">
+        <input id="name" type="text">
+        <button type="button" class="mic" data-mic="name" onclick="speak('name')">🎤</button>
+      </div>
+
+      <label for="district" data-lang="district"></label>
+      <div class="row">
+        <input id="district" type="text">
+        <button type="button" class="mic" data-mic="district" onclick="speak('district')">🎤</button>
+      </div>
+
+      <label for="village" data-lang="village"></label>
+      <div class="row">
+        <input id="village" type="text">
+        <button type="button" class="mic" data-mic="village" onclick="speak('village')">🎤</button>
+      </div>
+      
+      <button class="bada" onclick="saveProfile()" data-lang="next"></button>
+       <p class="msg" id="msg2"></p>
+    </section>
+        <section id="step3" hidden>
+      <h1 data-lang="t3"></h1>
+            <p id="welcome"></p>
+      <button class="link" onclick="logout()" data-lang="logout"></button>
+      <div class="notice" id="notice"></div>
+
+      <label for="crop" data-lang="crop"></label>
+      <select id="crop" onchange="showMandi()">
+        <option value="wheat" data-lang="c_wheat"></option>
+        <option value="rice" data-lang="c_rice"></option>
+        <option value="tomato" data-lang="c_tomato"></option>
+        <option value="onion" data-lang="c_onion"></option>
+        <option value="potato" data-lang="c_potato"></option>
+      </select>
+
+      <label for="qty" data-lang="qty"></label>
+      <input id="qty" type="tel" inputmode="numeric">
+
+      <label for="price" data-lang="price"></label>
+      <input id="price" type="tel" inputmode="numeric" oninput="showMandi()">
+
+      <div class="mandibox" id="mandibox"></div>
+            <div class="mandibox" id="contactbox"></div>
+      <button class="bada" id="sharebtn" onclick="shareNumber()" data-lang="share"></button>
+
+      <button class="bada" onclick="submitCrop()" data-lang="submit"></button>
+      <p class="msg" id="msg3"></p>
+    </section>
+
+    <section id="step4" hidden>
+      <div class="done">✅</div>
+      <h1 data-lang="t4"></h1>
+      <p id="summary"></p>
+      <p><span data-lang="refno"></span> <b id="ref"></b></p>
+      <a class="bada" href="index.html" data-lang="home"></a>
+    </section>
+  </main>
+
+  <script src="lang.js"></script>
+    <script src="voice.js"></script>
+  <script src="farmer.js"></script>
+</body>
+</html>

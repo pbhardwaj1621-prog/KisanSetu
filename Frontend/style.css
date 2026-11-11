@@ -1,0 +1,28 @@
+body{margin:0;font-family:sans-serif;font-size:20px;background:#f4f8f2;color:#14231a;text-align:center}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#2f6b3a;color:#fff}
+.logo{font-size:24px;font-weight:bold;color:#fff;text-decoration:none}
+header button{font-size:16px;padding:8px 14px;margin-left:6px;border:2px solid #fff;border-radius:8px;background:transparent;color:#fff}
+main{max-width:480px;margin:0 auto;padding:24px 20px}
+h1{font-size:34px;line-height:1.25}
+.bada{display:block;box-sizing:border-box;width:100%;margin:14px 0;padding:22px;font-size:24px;border:none;border-radius:14px;background:#2f6b3a;color:#fff;text-decoration:none}
+.khareedar{background:#1b5e7a}
+.steps{display:flex;gap:10px}
+.step{flex:1;background:#fff;border:2px solid #cfdccf;border-radius:14px;padding:14px 6px}
+.step span{font-size:38px}
+.step p{font-size:17px;margin:6px 0 0}
+label{display:block;text-align:left;font-weight:bold;margin:16px 0 6px}
+input{width:100%;box-sizing:border-box;padding:16px;font-size:22px;border:2px solid #cfdccf;border-radius:12px}
+.msg{color:#c23b22;font-weight:bold}
+footer{padding:20px;font-size:15px;color:#4d6154}
+select{width:100%;box-sizing:border-box;padding:16px;font-size:22px;border:2px solid #cfdccf;border-radius:12px;background:#fff}
+.mandibox{margin:18px 0;padding:16px;border-radius:12px;background:#fff3c4;font-weight:bold;text-align:left;min-height:24px}
+.done{font-size:70px}
+.card{background:#fff;border:2px solid #cfdccf;border-radius:16px;padding:16px;margin:16px 0;text-align:left}
+.card h2{margin:0 0 6px;font-size:26px}
+.card p{margin:6px 0}
+.bada:disabled{background:#8aa08e}
+.notice{background:#d9efff;padding:12px;border-radius:12px;font-weight:bold;margin:12px 0;text-align:left}
+.link{background:none;border:none;color:#1b5e7a;text-decoration:underline;font-size:16px;cursor:pointer}
+.mandibox div{margin:6px 0}
+.row{display:flex;gap:8px;align-items:center}
+.mic{font-size:28px;padding:10px 14px;border:2px solid #cfdccf;border-radius:12px;background:#fff;cursor:pointer}
