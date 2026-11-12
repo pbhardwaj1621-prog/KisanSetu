@@ -1,0 +1,126 @@
+const params = new URLSearchParams(location.search);
+const role = params.get("as") || localStorage.getItem("ks_role") || "buyer";
+let me = null, threadKey = params.get("k") || null;
+
+(function init() {
+  if (role === "farmer") me = JSON.parse(localStorage.getItem("ks_users") || "{}")[localStorage.getItem("ks_current")];
+  else me = JSON.parse(localStorage.getItem("ks_buyers") || "{}")[localStorage.getItem("ks_buyer_current")];
+  if (!me) {
+    document.getElementById("threads").innerHTML =
+      '<p class="msg">' + t("ch_login") + '</p><a class="bada" href="' + (role === "farmer" ? "farmer" : "buyer") + '.html">OK</a>';
+    return;
+  }
+  // buyer arriving from a listing: create the thread if needed
+  const l = params.get("l");
+  if (l && role === "buyer") {
+    threadKey = l + "_" + me.mobile;
+    const chats = getChats();
+    if (!chats[threadKey]) {
+      chats[threadKey] = { listing: Number(l), buyer: me.mobile, buyerName: me.name, msgs: [], deal: null };
+      saveChats(chats);
+    }
+  }
+  render();
+})();
+
+function listingOf(th) { return getListings().filter(function (x) { return x.id === th.listing; })[0]; }
+function mine(th) {
+  const lst = listingOf(th);
+  return role === "buyer" ? th.buyer === me.mobile : (lst && lst.mobile === me.mobile);
+}
+
+function render() { if (!me) return; threadKey && getChats()[threadKey] ? showRoom() : showInbox(); }
+
+function showInbox() {
+  document.getElementById("room").hidden = true;
+  document.getElementById("inbox").hidden = false;
+  const box = document.getElementById("threads");
+  box.innerHTML = "";
+  const chats = getChats();
+  const keys = Object.keys(chats).filter(function (k) { return mine(chats[k]); });
+  if (!keys.length) { box.textContent = t("ch_none"); return; }
+  keys.forEach(function (k) {
+    const th = chats[k], lst = listingOf(th);
+    const card = document.createElement("div");
+    card.className = "card";
+    const h = document.createElement("h2");
+    h.textContent = (lst ? t("c_" + lst.crop) : "—") + " · " + (role === "buyer" && lst ? lst.name : th.buyerName);
+    const last = th.msgs[th.msgs.length - 1];
+    const p = document.createElement("p");
+    p.textContent = th.deal ? t("ch_deal") + " ₹" + th.deal : last ? (last.offer ? t("ch_offered") + " ₹" + last.offer : last.text) : "…";
+    const b = document.createElement("button");
+    b.className = "bada";
+    b.textContent = t("ch_open");
+    b.onclick = function () { threadKey = k; showRoom(); };
+    card.append(h, p, b);
+    box.appendChild(card);
+  });
+}
+
+function backToInbox() { threadKey = null; history.replaceState(null, "", "chat.html?as=" + role); showInbox(); }
+
+function showRoom() {
+  document.getElementById("inbox").hidden = true;
+  document.getElementById("room").hidden = false;
+  const th = getChats()[threadKey], lst = listingOf(th);
+  document.getElementById("roomhead").textContent = lst
+    ? t("ch_with") + ": " + t("c_" + lst.crop) + " · " + lst.qty + " " + t("quintal") + " · ₹" + lst.price
+    : "";
+  const box = document.getElementById("msgs");
+  box.innerHTML = "";
+  th.msgs.forEach(function (m, i) {
+    const d = document.createElement("div");
+    d.className = "bubble " + (m.from === role ? "me" : "them") + (m.offer ? " offer" : "");
+    d.textContent = m.offer ? t("ch_offered") + " ₹" + m.offer : m.text;
+    box.appendChild(d);
+    // the other side can accept an open offer (only the latest one, only before a deal)
+    if (m.offer && m.from !== role && !th.deal && i === th.msgs.length - 1) {
+      const a = document.createElement("button");
+      a.className = "bada";
+      a.textContent = t("ch_accept");
+      a.onclick = function () { acceptOffer(m.offer); };
+      box.appendChild(a);
+    }
+  });
+  if (th.deal) {
+    const d = document.createElement("div");
+    d.className = "deal";
+    d.textContent = t("ch_deal") + " ₹" + th.deal + " / " + t("quintal");
+    box.appendChild(d);
+  }
+  box.scrollTop = box.scrollHeight;
+}
+
+function push(msg) {
+  const chats = getChats();
+  chats[threadKey].msgs.push(Object.assign({ from: role, time: Date.now() }, msg));
+  saveChats(chats);
+  showRoom();
+}
+function sendText() {
+  const el = document.getElementById("text");
+  const v = el.value.trim();
+  if (!v) { document.getElementById("cmsg").textContent = t("ch_err"); return; }
+  document.getElementById("cmsg").textContent = "";
+  el.value = "";
+  push({ text: v });
+}
+function sendOffer() {
+  const el = document.getElementById("offer");
+  const v = Number(el.value);
+  if (!(v > 0)) { document.getElementById("cmsg").textContent = t("ch_err"); return; }
+  document.getElementById("cmsg").textContent = "";
+  el.value = "";
+  push({ offer: v });
+}
+function acceptOffer(price) {
+  const chats = getChats();
+  chats[threadKey].deal = price;
+  saveChats(chats);
+  showRoom();
+  toast(t("ch_deal") + " ₹" + price);
+}
+
+// live update when the other person (other tab/browser window) sends something
+window.addEventListener("storage", function (e) { if (e.key === "ks_chats") render(); });
+window.onLang = render;

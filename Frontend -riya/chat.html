@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kisan Setu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a class="logo" href="index.html">🌉 <span data-lang="title"></span></a>
+    <div id="langbox" class="notranslate"></div>
+  </header>
+  <nav>
+    <a href="index.html" data-lang="n_home"></a>
+    <a href="predict.html" data-lang="n_predict"></a>
+    <a href="chat.html" data-lang="n_chat"></a>
+  </nav>
+  <div id="toast" role="status"></div>
+  <main>
+    <section id="inbox">
+      <h1 data-lang="ch_title"></h1>
+      <div id="threads"></div>
+    </section>
+
+    <section id="room" hidden>
+      <button class="link" onclick="backToInbox()" data-lang="ch_back"></button>
+      <div class="notice" id="roomhead"></div>
+      <div id="msgs" class="msgs"></div>
+
+      <div class="row">
+        <input id="text" type="text" onkeydown="if(event.key==='Enter')sendText()">
+        <button type="button" class="mic" data-mic="text" onclick="speak('text')">🎤</button>
+      </div>
+      <button class="bada" onclick="sendText()" data-lang="ch_send"></button>
+
+      <label for="offer" data-lang="ch_offer"></label>
+      <div class="row">
+        <input id="offer" type="tel" inputmode="numeric">
+        <button class="mic" onclick="sendOffer()" data-lang="ch_offerbtn"></button>
+      </div>
+      <p class="msg" id="cmsg"></p>
+    </section>
+  </main>
+  <script src="lang.js"></script>
+  <script src="data.js"></script>
+  <script src="voice.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>

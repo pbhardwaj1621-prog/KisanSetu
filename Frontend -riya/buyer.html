@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kisan Setu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a class="logo" href="index.html">🌉 <span data-lang="title"></span></a>
+    <div id="langbox" class="notranslate"></div>
+  </header>
+  <nav>
+    <a href="index.html" data-lang="n_home"></a>
+    <a href="predict.html" data-lang="n_predict"></a>
+    <a href="chat.html" data-lang="n_chat"></a>
+  </nav>
+  <div id="toast" role="status"></div>
+  <main>
+    <section id="step1">
+      <h1 data-lang="t1"></h1>
+      <label for="mobile" data-lang="mobile"></label>
+      <input id="mobile" type="tel" maxlength="10" inputmode="numeric">
+      <button class="bada" onclick="sendOtp()" data-lang="sendotp"></button>
+      <div id="otpbox" hidden>
+        <p class="hint" data-lang="otp_hint"></p>
+        <label for="otp" data-lang="otp"></label>
+        <input id="otp" type="tel" maxlength="4" inputmode="numeric">
+        <button class="bada" onclick="verifyOtp()" data-lang="verify"></button>
+      </div>
+      <p class="msg" id="msg"></p>
+    </section>
+
+    <section id="step2" hidden>
+      <h1 data-lang="b_reg"></h1>
+      <label for="name" data-lang="name"></label>
+      <div class="row"><input id="name" type="text"><button type="button" class="mic" data-mic="name" onclick="speak('name')">🎤</button></div>
+      <label for="mandi" data-lang="b_mandi"></label>
+      <select id="mandi">
+        <option value="Mathura">Mathura</option>
+        <option value="Chhata">Chhata</option>
+        <option value="Kosi">Kosi</option>
+        <option value="Agra">Agra</option>
+      </select>
+      <button class="bada" onclick="saveProfile()" data-lang="next"></button>
+      <p class="msg" id="msg2"></p>
+    </section>
+
+    <section id="step3" hidden>
+      <h1 data-lang="b_title"></h1>
+      <p id="welcome"></p>
+      <button class="link" onclick="logout()" data-lang="logout"></button>
+
+      <label for="filter" data-lang="b_filter"></label>
+      <select id="filter" onchange="renderList()">
+        <option value="all" data-lang="c_all"></option>
+        <option value="wheat" data-lang="c_wheat"></option>
+        <option value="rice" data-lang="c_rice"></option>
+        <option value="tomato" data-lang="c_tomato"></option>
+        <option value="onion" data-lang="c_onion"></option>
+        <option value="potato" data-lang="c_potato"></option>
+      </select>
+      <label for="sort" data-lang="b_sort"></label>
+      <select id="sort" onchange="renderList()">
+        <option value="new" data-lang="so_new"></option>
+        <option value="low" data-lang="so_low"></option>
+        <option value="high" data-lang="so_high"></option>
+      </select>
+      <div id="list"></div>
+    </section>
+  </main>
+
+  <script src="lang.js"></script>
+  <script src="data.js"></script>
+  <script src="voice.js"></script>
+  <script src="buyer.js"></script>
+</body>
+</html>
