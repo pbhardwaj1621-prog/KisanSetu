@@ -21,8 +21,9 @@
     <h1 data-lang="p_title"></h1>
     <p data-lang="p_sub"></p>
 
+    <div class="panel">
     <label for="crop" data-lang="crop"></label>
-    <select id="crop" onchange="predictNow()">
+    <select id="crop" data-chips onchange="predictNow()">
       <option value="wheat" data-lang="c_wheat"></option>
       <option value="rice" data-lang="c_rice"></option>
       <option value="tomato" data-lang="c_tomato"></option>
@@ -31,7 +32,7 @@
     </select>
 
     <label for="quality" data-lang="p_quality"></label>
-    <select id="quality" onchange="predictNow()">
+    <select id="quality" data-chips onchange="predictNow()">
       <option value="A" data-lang="q_a"></option>
       <option value="B" data-lang="q_b" selected></option>
       <option value="C" data-lang="q_c"></option>
@@ -41,13 +42,16 @@
     <select id="month" onchange="predictNow()"></select>
 
     <label for="qty" data-lang="qty"></label>
-    <input id="qty" type="tel" inputmode="numeric" value="10" oninput="predictNow()">
+    <input id="qty" type="tel" inputmode="numeric" data-num="int" value="10" oninput="predictNow()">
+
+    </div>
 
     <div id="result" class="result"></div>
     <a class="bada" href="farmer.html" data-lang="p_list"></a>
     <p class="hint" data-lang="p_note"></p>
   </main>
   <script src="lang.js"></script>
+  <script src="ui.js"></script>
   <script src="data.js"></script>
   <script src="predict.js"></script>
 </body>

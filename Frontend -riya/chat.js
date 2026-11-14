@@ -42,17 +42,20 @@ function showInbox() {
   keys.forEach(function (k) {
     const th = chats[k], lst = listingOf(th);
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = "card thread";
     const h = document.createElement("h2");
     h.textContent = (lst ? cropIcon[lst.crop] + " " + t("c_" + lst.crop) : "—") + " · " + (role === "buyer" && lst ? lst.name : th.buyerName);
     const last = th.msgs[th.msgs.length - 1];
     const p = document.createElement("p");
     p.textContent = th.deal ? t("ch_deal") + " ₹" + th.deal : last ? (last.offer ? t("ch_offered") + " ₹" + last.offer : last.text) : "…";
     const b = document.createElement("button");
-    b.className = "bada";
+    b.className = "bada small";
     b.textContent = t("ch_open");
     b.onclick = function () { threadKey = k; showRoom(); };
-    card.append(h, p, b);
+    const av = document.createElement("span"); av.className = "cav"; av.textContent = lst ? cropIcon[lst.crop] : "💬";
+    const mid = document.createElement("div"); mid.className = "tmid"; mid.append(h, p);
+    if (th.deal) { const bd = document.createElement("span"); bd.className = "badge ok"; bd.textContent = "🤝 " + t("ch_deal"); mid.appendChild(bd); }
+    card.append(av, mid, b);
     box.appendChild(card);
   });
 }
@@ -65,13 +68,18 @@ function showRoom() {
   const th = getChats()[threadKey];
   if (!th) { threadKey = null; showInbox(); return; }
   const lst = listingOf(th);
-  document.getElementById("roomhead").textContent = lst
-    ? t("ch_with") + ": " + t("c_" + lst.crop) + " · " + lst.qty + " " + t("quintal") + " · ₹" + lst.price
-    : "";
+  const rh = document.getElementById("roomhead"); rh.innerHTML = "";
+  if (lst) {
+    const av = document.createElement("span"); av.className = "cav"; av.textContent = cropIcon[lst.crop];
+    const tx = document.createElement("div");
+    const b = document.createElement("b"); b.textContent = t("c_" + lst.crop) + " · " + (role === "buyer" ? lst.name : th.buyerName);
+    const sm = document.createElement("small"); sm.textContent = lst.qty + " " + t("quintal") + " · ₹" + lst.price + " / " + t("quintal");
+    tx.append(b, sm); rh.append(av, tx);
+  }
   // quick one-tap questions and the offer box are hidden once a deal is final
   document.getElementById("offerrow").hidden = !!th.deal;
   document.getElementById("text").parentNode.hidden = !!th.deal;
-  document.querySelector("#room > button.bada").hidden = !!th.deal;
+  document.getElementById("sendbtn").hidden = !!th.deal;
   const quick = document.getElementById("quick");
   quick.innerHTML = "";
   if (!th.deal) ["ch_q1", "ch_q2", "ch_q3"].forEach(function (k) {
@@ -89,6 +97,7 @@ function showRoom() {
     const d = document.createElement("div");
     d.className = "bubble " + (m.from === role ? "me" : "them") + (m.offer ? " offer" : "");
     d.textContent = m.offer ? t("ch_offered") + " ₹" + m.offer : m.text;
+    if (m.time) { const tm = document.createElement("small"); tm.className = "bt"; tm.textContent = new Date(m.time).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }); d.appendChild(tm); }
     box.appendChild(d);
     // the other side can accept an open offer (only the latest one, only before a deal)
     if (m.offer && m.from !== role && !th.deal && i === th.msgs.length - 1) {

@@ -150,3 +150,46 @@ footer{padding:20px;text-align:center;font-size:15px;color:var(--mute)}
 @keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
 @media (max-width:420px){h1{font-size:28px}.hero h1{font-size:33px}.chip{font-size:15px;padding:8px 12px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ================= v3: price prediction + chat ================= */
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:4px 16px 16px;margin:14px 0}
+.phero{position:relative;overflow:hidden;border-radius:24px;padding:22px;color:#fff;background:linear-gradient(135deg,#14402b,#2f7d4a);margin:16px 0 12px}
+.phero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,#ffd35c,#f2a516 60%,transparent 70%);opacity:.85}
+.ptop{display:flex;align-items:center;gap:10px;font-weight:700;opacity:.95;position:relative;z-index:1}
+.pico{font-size:34px}
+.pprice{position:relative;z-index:1;margin:6px 0 10px}
+.pprice b{font-size:54px;line-height:1;letter-spacing:-1px}
+.pprice small{font-size:18px;opacity:.85}
+.ptrend{position:relative;z-index:1;display:inline-block;padding:5px 14px;border-radius:20px;font-weight:800;font-size:16px;background:#fff;color:var(--forest)}
+.ptrend.down{color:#9a2f12}
+.stat b.sm{font-size:19px}
+.insight{display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:16px;margin:12px 0;background:#fff1c4;border:2px solid var(--sun)}
+.insight.now{background:#d6f0d6;border-color:var(--leaf)}
+.insight>span{font-size:30px}
+.insight small{display:block;color:var(--mute);font-size:15px}
+.chart{width:100%;height:auto;display:block}
+.mrow{display:flex;align-items:center;gap:10px;margin:8px 0}
+.mrow b{min-width:64px;text-align:right}
+.mbar{height:36px;border-radius:10px;background:#cfe3d0;display:flex;align-items:center;padding:0 12px;font-weight:700;transition:width .5s}
+.mbar.top{background:var(--leaf);color:#fff}
+
+/* chat */
+.chathead{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;margin:8px 0}
+.chathead small{display:block;color:var(--mute)}
+.cav{flex:none;width:48px;height:48px;border-radius:50%;background:#e3f1e3;display:flex;align-items:center;justify-content:center;font-size:26px}
+.thread{display:flex;align-items:center;gap:12px}
+.thread .tmid{flex:1;min-width:0}
+.thread h2{font-size:19px;margin:0}
+.thread p{margin:2px 0;color:var(--mute);font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thread .bada{margin:0}
+.msgs{height:50vh;min-height:300px;background:#e8efe5 radial-gradient(#d3e0d0 1px,transparent 1.5px) 0 0/18px 18px}
+.bubble{box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.bt{display:block;font-size:11px;opacity:.65;text-align:right;margin-top:2px;font-weight:400}
+#quick{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+#quick .chip{flex:none}
+.offerbar{background:#fff1c4;border-radius:14px;padding:4px 12px 10px;margin:8px 0}
+.offerbar label{margin:8px 0 4px}
+.offerbar .rs{font-size:24px;font-weight:800}
+.composer{display:flex;gap:8px;align-items:center;margin:8px 0}
+.composer input{border-radius:30px;flex:1;min-width:0}
+.send{flex:none;width:52px;height:52px;border-radius:50%;border:0;background:var(--leaf);color:#fff;font-size:22px;cursor:pointer}
+.send:active{transform:scale(.92)}
