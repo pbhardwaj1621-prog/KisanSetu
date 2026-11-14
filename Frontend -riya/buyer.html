@@ -21,12 +21,12 @@
     <section id="step1">
       <h1 data-lang="t1"></h1>
       <label for="mobile" data-lang="mobile"></label>
-      <input id="mobile" type="tel" maxlength="10" inputmode="numeric">
+      <input id="mobile" type="tel" maxlength="10" inputmode="numeric" data-num="int" autocomplete="tel">
       <button class="bada" onclick="sendOtp()" data-lang="sendotp"></button>
       <div id="otpbox" hidden>
         <p class="hint" data-lang="otp_hint"></p>
         <label for="otp" data-lang="otp"></label>
-        <input id="otp" type="tel" maxlength="4" inputmode="numeric">
+        <input id="otp" type="tel" maxlength="4" inputmode="numeric" data-num="int">
         <button class="bada" onclick="verifyOtp()" data-lang="verify"></button>
       </div>
       <p class="msg" id="msg"></p>
@@ -53,7 +53,7 @@
       <button class="link" onclick="logout()" data-lang="logout"></button>
 
       <label for="filter" data-lang="b_filter"></label>
-      <select id="filter" onchange="renderList()">
+      <select id="filter" data-chips onchange="renderList()">
         <option value="all" data-lang="c_all"></option>
         <option value="wheat" data-lang="c_wheat"></option>
         <option value="rice" data-lang="c_rice"></option>

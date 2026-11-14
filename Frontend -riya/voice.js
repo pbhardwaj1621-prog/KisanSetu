@@ -4,6 +4,8 @@ const SR_LANG = { en: "en-IN", hi: "hi-IN", bn: "bn-IN", gu: "gu-IN", kn: "kn-IN
 function speak(inputId) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { alert(t("voice_unsupported")); return; }
+  const btn0 = document.querySelector('[data-mic="' + inputId + '"]');
+  if (btn0 && btn0.classList.contains("rec")) return;       // already listening
   const rec = new SR();
   rec.lang = SR_LANG[lang] || "hi-IN";
   rec.interimResults = false;
@@ -12,6 +14,7 @@ function speak(inputId) {
   if (btn) { btn.textContent = "🔴"; btn.classList.add("rec"); }
   rec.onresult = function (e) { document.getElementById(inputId).value = e.results[0][0].transcript; };
   rec.onerror = function () { toast(t("voice_error")); };
+  rec.onnomatch = function () { toast(t("voice_error")); };
   rec.onend = function () { if (btn) { btn.textContent = "🎤"; btn.classList.remove("rec"); } };
-  rec.start();
+  try { rec.start(); } catch (e) { if (btn) { btn.textContent = "🎤"; btn.classList.remove("rec"); } }
 }

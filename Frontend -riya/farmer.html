@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,95 +6,54 @@
   <title>Kisan Setu</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
   <header>
-    <a class="logo" href="index.html">
-      🌉 <span data-lang="title"></span>
-    </a>
+    <a class="logo" href="index.html">🌉 <span data-lang="title"></span></a>
     <div id="langbox" class="notranslate"></div>
   </header>
-
   <nav>
     <a href="index.html" data-lang="n_home"></a>
     <a href="predict.html" data-lang="n_predict"></a>
     <a href="chat.html" data-lang="n_chat"></a>
   </nav>
-
   <div id="toast" role="status"></div>
-
   <main>
-
-    <!-- STEP 1: FARMER LOGIN -->
-
     <section id="step1">
       <h1 data-lang="t1"></h1>
-
       <label for="mobile" data-lang="mobile"></label>
-      <input id="mobile" type="tel" maxlength="10" inputmode="numeric">
-
+      <input id="mobile" type="tel" maxlength="10" inputmode="numeric" data-num="int" autocomplete="tel">
       <button class="bada" onclick="sendOtp()" data-lang="sendotp"></button>
-
       <div id="otpbox" hidden>
         <p class="hint" data-lang="otp_hint"></p>
-
         <label for="otp" data-lang="otp"></label>
-        <input id="otp" type="tel" maxlength="4" inputmode="numeric">
-
+        <input id="otp" type="tel" maxlength="4" inputmode="numeric" data-num="int">
         <button class="bada" onclick="verifyOtp()" data-lang="verify"></button>
       </div>
-
       <p class="msg" id="msg"></p>
     </section>
 
-
-    <!-- STEP 2: FARMER PROFILE -->
-
     <section id="step2" hidden>
       <h1 data-lang="t2"></h1>
-
       <label for="name" data-lang="name"></label>
-      <div class="row">
-        <input id="name" type="text">
-        <button type="button" class="mic" data-mic="name" onclick="speak('name')">🎤</button>
-      </div>
-
+      <div class="row"><input id="name" type="text"><button type="button" class="mic" data-mic="name" onclick="speak('name')">🎤</button></div>
       <label for="district" data-lang="district"></label>
-      <div class="row">
-        <input id="district" type="text">
-        <button type="button" class="mic" data-mic="district" onclick="speak('district')">🎤</button>
-      </div>
-
+      <div class="row"><input id="district" type="text"><button type="button" class="mic" data-mic="district" onclick="speak('district')">🎤</button></div>
       <label for="village" data-lang="village"></label>
-      <div class="row">
-        <input id="village" type="text">
-        <button type="button" class="mic" data-mic="village" onclick="speak('village')">🎤</button>
-      </div>
-
+      <div class="row"><input id="village" type="text"><button type="button" class="mic" data-mic="village" onclick="speak('village')">🎤</button></div>
       <button class="bada" onclick="saveProfile()" data-lang="next"></button>
-
       <p class="msg" id="msg2"></p>
     </section>
 
-
-    <!-- STEP 3: FARMER DASHBOARD -->
-
     <section id="step3" hidden>
-
       <h1 data-lang="t3"></h1>
-
       <p id="welcome"></p>
-
       <button class="link" onclick="logout()" data-lang="logout"></button>
-
+      <button class="bada ghost small" id="jump" onclick="jumpToMine()" hidden></button>
+      <div class="notice edit" id="editbanner" hidden></div>
       <div class="notice" id="notice"></div>
 
-      <!-- CROP SELECTION -->
-
       <label for="crop" data-lang="crop"></label>
-
-      <select id="crop" onchange="showMandi()">
+      <select id="crop" data-chips onchange="showMandi()">
         <option value="wheat" data-lang="c_wheat"></option>
         <option value="rice" data-lang="c_rice"></option>
         <option value="tomato" data-lang="c_tomato"></option>
@@ -103,83 +61,44 @@
         <option value="potato" data-lang="c_potato"></option>
       </select>
 
-      <!-- QUANTITY -->
-
       <label for="qty" data-lang="qty"></label>
-      <input id="qty" type="tel" inputmode="numeric">
-
-      <!-- PRICE -->
+      <input id="qty" type="tel" inputmode="decimal" data-num="dec" maxlength="8">
 
       <label for="price" data-lang="price"></label>
-      <input id="price" type="tel" inputmode="numeric" oninput="showMandi()">
-
+      <input id="price" type="tel" inputmode="numeric" data-num="int" maxlength="7" oninput="showMandi()">
       <button class="bada ghost" type="button" onclick="useFair()" data-lang="use_fair"></button>
 
-      <!-- MANDI INFORMATION -->
-
+      <div class="meter" id="meter" hidden><i class="zone"></i><b class="pin"></b></div>
       <div class="mandibox" id="mandibox"></div>
 
+      <label for="lmandi" data-lang="f_mandi"></label>
+      <select id="lmandi" onchange="showMandi()"></select>
+
       <div class="mandibox" id="contactbox"></div>
-
       <button class="bada ghost" id="sharebtn" onclick="shareNumber()" data-lang="share"></button>
-
-      <!-- SUBMIT CROP -->
-
-      <button class="bada" onclick="submitCrop()" data-lang="submit"></button>
-
+      <button class="bada" id="submitbtn" onclick="submitCrop()" data-lang="submit"></button>
+      <button class="bada ghost" id="cancelbtn" onclick="cancelEdit()" data-lang="f_cancel" hidden></button>
       <p class="msg" id="msg3"></p>
 
-
-      <!-- MY CROP LISTINGS / DELETE SECTION -->
-
-      <div class="my-listings-section">
-
-        <h2 data-lang="f_mine">My Crop Listings</h2>
-
-        <p>Manage the crops you have listed on Kisan Setu.</p>
-
-        <div id="mylist">
-          <!-- Farmer's crop listings and Delete buttons
-               will be displayed here by farmer.js -->
-        </div>
-
-      </div>
-
+      <h2 id="minehead" data-lang="f_mine"></h2>
+      <div id="mylist"></div>
     </section>
-
-
-    <!-- STEP 4: SUCCESS SCREEN -->
 
     <section id="step4" hidden>
-
       <div class="done">✅</div>
-
       <h1 data-lang="t4"></h1>
-
       <p id="summary"></p>
-
-      <p>
-        <span data-lang="refno"></span>
-        <b id="ref"></b>
-      </p>
-
+      <p><span data-lang="refno"></span> <b id="ref"></b></p>
+      <div id="justlisted"></div>
       <a class="bada" href="chat.html?as=farmer" data-lang="f_chats"></a>
-
       <a class="bada ghost" href="farmer.html" data-lang="f_another"></a>
-
       <a class="bada ghost" href="index.html" data-lang="home"></a>
-
     </section>
-
   </main>
-
-
-  <!-- JAVASCRIPT FILES -->
 
   <script src="lang.js"></script>
   <script src="data.js"></script>
   <script src="voice.js"></script>
   <script src="farmer.js"></script>
-
 </body>
 </html>

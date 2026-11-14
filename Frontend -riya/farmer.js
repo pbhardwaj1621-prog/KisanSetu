@@ -1,23 +1,16 @@
-
 let bestMandi = "";
 let shareChoice = false;
+let editingId = null;      // id of the listing being edited (null = adding a new one)
 
-function getUsers() {
-  return JSON.parse(localStorage.getItem("ks_users") || "{}");
-}
-
-function currentUser() {
-  return getUsers()[localStorage.getItem("ks_current")];
-}
+function getUsers() { return readJSON("ks_users", {}); }
+function currentUser() { return getUsers()[localStorage.getItem("ks_current")]; }
 
 function sendOtp() {
   const mobile = document.getElementById("mobile").value;
-
-  if (mobile.length !== 10 || isNaN(mobile)) {
+  if (!/^\d{10}$/.test(mobile)) {
     document.getElementById("msg").textContent = t("err_mobile");
     return;
   }
-
   document.getElementById("msg").textContent = "";
   document.getElementById("otpbox").hidden = false;
   document.getElementById("otp").focus();
@@ -28,48 +21,38 @@ function verifyOtp() {
     document.getElementById("msg").textContent = t("err_otp");
     return;
   }
-
   const mobile = document.getElementById("mobile").value;
   localStorage.setItem("ks_current", mobile);
   localStorage.setItem("ks_role", "farmer");
-
   document.getElementById("step1").hidden = true;
-
-  if (getUsers()[mobile]) {
-    openCropScreen();
-  } else {
-    document.getElementById("step2").hidden = false;
-  }
+  if (getUsers()[mobile]) openCropScreen();
+  else document.getElementById("step2").hidden = false;
 }
 
 function saveProfile() {
   const name = document.getElementById("name").value.trim();
   const district = document.getElementById("district").value.trim();
   const village = document.getElementById("village").value.trim();
-
   if (!name || !district || !village) {
     document.getElementById("msg2").textContent = t("err_fill");
     return;
   }
-
   const users = getUsers();
   const mobile = localStorage.getItem("ks_current");
-
-  users[mobile] = {
-    mobile: mobile,
-    name: name,
-    district: district,
-    village: village
-  };
-
+  users[mobile] = { mobile: mobile, name: name, district: district, village: village };
   localStorage.setItem("ks_users", JSON.stringify(users));
-
   document.getElementById("step2").hidden = true;
   openCropScreen();
 }
 
 function openCropScreen() {
   localStorage.setItem("ks_role", "farmer");
+  const lm = document.getElementById("lmandi");
+  if (!lm.options.length) {
+    Object.keys(mandis).forEach(function (m) {
+      const o = document.createElement("option"); o.value = m; o.textContent = m; lm.appendChild(o);
+    });
+  }
   document.getElementById("step3").hidden = false;
   showMandi();
   renderMine();
@@ -80,14 +63,10 @@ function logout() {
   location.reload();
 }
 
+/* ---------- price helper box ---------- */
 function showMandi() {
   const user = currentUser();
-
-  if (user) {
-    document.getElementById("welcome").textContent =
-      t("welcome") + " " + user.name + " 👋";
-  }
-
+  if (user) document.getElementById("welcome").textContent = t("welcome") + " " + user.name + " 👋";
   if (!document.getElementById("crop")) return;
 
   const crop = document.getElementById("crop").value;
@@ -95,17 +74,12 @@ function showMandi() {
 
   const box = document.getElementById("mandibox");
   box.innerHTML = "";
-
   const title = document.createElement("div");
   title.textContent = t("mandi_label");
   box.appendChild(title);
-
   for (const name in mandis) {
     const line = document.createElement("div");
-    line.textContent =
-      (name === bestMandi ? "⭐ " : "") +
-      name + ": ₹" + mandis[name][crop];
-
+    line.textContent = (name === bestMandi ? "⭐ " : "") + name + ": ₹" + mandis[name][crop];
     box.appendChild(line);
   }
 
@@ -116,47 +90,41 @@ function showMandi() {
 
   const best = mandis[bestMandi][crop];
   const price = Number(document.getElementById("price").value);
-
+  const meter = document.getElementById("meter");
   if (price > 0) {
     const cmp = document.createElement("div");
-
     if (price > best) cmp.textContent = "👉 " + t("above");
     else if (price < best) cmp.textContent = "👉 " + t("below");
     else cmp.textContent = "👉 " + t("same");
-
     box.appendChild(cmp);
-
+    const state = price > fair * 1.08 ? "hi" : price < fair * 0.92 ? "lo" : "ok";
     const fv = document.createElement("div");
-    fv.textContent =
-      price > fair * 1.08
-        ? t("fair_high")
-        : price < fair * 0.92
-          ? t("fair_low")
-          : t("fair_ok");
-
+    fv.textContent = t(state === "hi" ? "fair_high" : state === "lo" ? "fair_low" : "fair_ok");
     box.appendChild(fv);
+
+    // colourful meter: green zone = fair price, pin = your price
+    meter.hidden = false;
+    meter.className = "meter " + state;
+    const pos = Math.max(0, Math.min(1, (price / fair - 0.7) / 0.6));
+    meter.querySelector(".pin").style.left = pos * 100 + "%";
+  } else {
+    meter.hidden = true;
   }
 
   document.getElementById("notice").textContent =
-    "🔔 " + t("best_today") + " " + t("c_" + crop) +
-    ": " + bestMandi + " (₹" + best + ")";
+    "🔔 " + t("best_today") + " " + t("c_" + crop) + ": " + bestMandi + " (₹" + best + ")";
 
   const cb = document.getElementById("contactbox");
-
+  const chosen = document.getElementById("lmandi").value;
   cb.textContent = shareChoice
-    ? "✅ " + t("shared") + " " + bestMandi +
-      ": " + (user ? user.mobile : "")
+    ? "✅ " + t("shared") + " " + chosen + (user ? ": " + user.mobile : "")
     : t("contact_text") + " " + Object.keys(mandis).join(", ");
-
   document.getElementById("sharebtn").hidden = shareChoice;
 }
 
 function useFair() {
   const crop = document.getElementById("crop").value;
-
-  document.getElementById("price").value =
-    fairPrice(crop, new Date().getMonth(), "B");
-
+  document.getElementById("price").value = fairPrice(crop, new Date().getMonth(), "B");
   showMandi();
   toast("✨ ₹" + document.getElementById("price").value);
 }
@@ -167,109 +135,160 @@ function shareNumber() {
   toast("✅ " + t("share"));
 }
 
+/* ---------- add / edit ---------- */
 function submitCrop() {
   const user = currentUser();
   const qty = Number(document.getElementById("qty").value);
   const price = Number(document.getElementById("price").value);
-
   if (!(qty > 0) || !(price > 0)) {
     document.getElementById("msg3").textContent = t("err_crop");
     return;
   }
-
+  if (qty > 100000 || price > 1000000) {
+    document.getElementById("msg3").textContent = t("err_big");
+    return;
+  }
   document.getElementById("msg3").textContent = "";
-
   const crop = document.getElementById("crop").value;
-  const id = Date.now();
+  const mandi = document.getElementById("lmandi").value;
   const all = getListings();
+  let id;
 
+  if (editingId) {                                   // save changes to an existing listing
+    id = editingId;
+    all.forEach(function (l) {
+      if (l.id === id) { l.crop = crop; l.qty = qty; l.price = price; l.mandi = mandi; l.shared = shareChoice; }
+    });
+    saveListings(all);
+    toast("✅ " + t("f_updated"));
+    cancelEdit(true);
+    renderMine();
+    return;
+  }
+
+  id = Date.now();
   all.push({
-    id: id,
-    mobile: user.mobile,
-    name: user.name,
-    village: user.village,
-    district: user.district,
-    crop: crop,
-    qty: qty,
-    price: price,
-    mandi: bestMandi,
-    shared: shareChoice
+    id: id, mobile: user.mobile, name: user.name, village: user.village,
+    district: user.district, crop: crop, qty: qty, price: price,
+    mandi: mandi, shared: shareChoice
   });
-
   saveListings(all);
 
   document.getElementById("summary").textContent =
-    t("c_" + crop) + " · " + qty + " " +
-    t("quintal") + " · ₹" + price + " / " + t("quintal");
+    cropIcon[crop] + " " + t("c_" + crop) + " · " + qty + " " + t("quintal") + " · ₹" + price + " / " + t("quintal");
+  document.getElementById("ref").textContent = "KS" + Math.floor(10000 + Math.random() * 90000);
 
-  document.getElementById("ref").textContent =
-    "KS" + Math.floor(10000 + Math.random() * 90000);
+  // wrong details? Let the farmer fix or remove it straight from this screen
+  const jl = document.getElementById("justlisted");
+  jl.innerHTML = "";
+  jl.appendChild(listingCard(all[all.length - 1], true));
 
   document.getElementById("step3").hidden = true;
   document.getElementById("step4").hidden = false;
-
   window.scrollTo(0, 0);
+  confetti();
+  resetForm();
 }
 
-/* DISPLAY FARMER'S LISTINGS AND DELETE OPTION */
+function resetForm() {
+  document.getElementById("qty").value = "";
+  document.getElementById("price").value = "";
+  shareChoice = false;
+  showMandi();
+}
+
+function startEdit(l) {
+  editingId = l.id;
+  document.getElementById("step4").hidden = true;
+  document.getElementById("step3").hidden = false;
+  document.getElementById("crop").value = l.crop;
+  document.getElementById("qty").value = l.qty;
+  document.getElementById("price").value = l.price;
+  document.getElementById("lmandi").value = l.mandi || Object.keys(mandis)[0];
+  shareChoice = !!l.shared;
+  refreshChips();
+  showMandi();
+  const eb = document.getElementById("editbanner");
+  eb.textContent = t("f_editing"); eb.hidden = false;
+  document.getElementById("submitbtn").dataset.lang = "f_save";
+  document.getElementById("submitbtn").textContent = t("f_save");
+  document.getElementById("cancelbtn").hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function cancelEdit(silent) {
+  editingId = null;
+  document.getElementById("editbanner").hidden = true;
+  document.getElementById("submitbtn").dataset.lang = "submit";
+  document.getElementById("submitbtn").textContent = t("submit");
+  document.getElementById("cancelbtn").hidden = true;
+  resetForm();
+}
+
+/* ---------- delete (asks first, also removes the chats about that crop) ---------- */
+function removeListing(l, after) {
+  confirmBox(t("f_ctitle"), t("f_ctext"), t("f_yes"), t("f_no"), function () {
+    saveListings(getListings().filter(function (x) { return x.id !== l.id; }));
+    const chats = getChats();
+    Object.keys(chats).forEach(function (k) { if (chats[k].listing === l.id) delete chats[k]; });
+    saveChats(chats);
+    if (editingId === l.id) cancelEdit();
+    toast("🗑 " + t("f_removed"));
+    if (after) after();
+    renderMine();
+  });
+}
+
+function listingCard(l, onSuccessScreen) {
+  const card = document.createElement("div");
+  card.className = "card";
+  const h = document.createElement("h2");
+  h.textContent = cropIcon[l.crop] + " " + t("c_" + l.crop);
+  const p = document.createElement("p");
+  p.textContent = l.qty + " " + t("quintal") + " · ₹" + l.price + " / " + t("quintal") + (l.mandi ? " · 📍 " + l.mandi : "");
+  const row = document.createElement("div");
+  row.className = "btnrow";
+  const edit = document.createElement("button");
+  edit.className = "bada ghost small";
+  edit.textContent = t("f_edit");
+  edit.onclick = function () { startEdit(l); };
+  const del = document.createElement("button");
+  del.className = "bada danger small";
+  del.textContent = t("f_delete");
+  del.onclick = function () {
+    removeListing(l, onSuccessScreen ? function () {
+      document.getElementById("step4").hidden = true;
+      document.getElementById("step3").hidden = false;
+    } : null);
+  };
+  row.append(edit, del);
+  card.append(h, p, row);
+  return card;
+}
 
 function renderMine() {
   const user = currentUser();
   const box = document.getElementById("mylist");
-
   if (!user || !box) return;
-
   box.innerHTML = "";
+  const mine = getListings().filter(function (l) { return l.mobile === user.mobile; });
 
-  const mine = getListings().filter(function (l) {
-    return l.mobile === user.mobile;
-  });
+  const jump = document.getElementById("jump");
+  jump.hidden = mine.length === 0;
+  jump.textContent = t("f_count") + " (" + mine.length + ")";
 
-  if (mine.length === 0) {
-    box.textContent = t("f_none");
-    return;
-  }
+  if (mine.length === 0) { box.textContent = t("f_none"); return; }
+  mine.forEach(function (l) { box.appendChild(listingCard(l, false)); });
+}
 
-  mine.forEach(function (l) {
-    const card = document.createElement("div");
-    card.className = "card";
-
-    const h = document.createElement("h2");
-    h.textContent = t("c_" + l.crop);
-
-    const p = document.createElement("p");
-    p.textContent =
-      l.qty + " " + t("quintal") +
-      " · ₹" + l.price + " / " + t("quintal");
-
-    const del = document.createElement("button");
-    del.className = "link";
-    del.textContent = "🗑 " + t("f_delete");
-
-    del.onclick = function () {
-      const confirmDelete = confirm(
-        "Are you sure you want to delete this crop listing?"
-      );
-
-      if (!confirmDelete) return;
-
-      const updatedListings = getListings().filter(function (x) {
-        return x.id !== l.id;
-      });
-
-      saveListings(updatedListings);
-      renderMine();
-      toast(t("f_removed"));
-    };
-
-    card.append(h, p, del);
-    box.appendChild(card);
-  });
+function jumpToMine() {
+  document.getElementById("minehead").scrollIntoView({ behavior: "smooth" });
 }
 
 window.onLang = function () {
   showMandi();
   renderMine();
+  if (editingId) document.getElementById("editbanner").textContent = t("f_editing");
 };
 
 if (currentUser()) {

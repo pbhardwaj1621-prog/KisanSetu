@@ -1,9 +1,9 @@
-function getBuyers() { return JSON.parse(localStorage.getItem("ks_buyers") || "{}"); }
+function getBuyers() { return readJSON("ks_buyers", {}); }
 function currentBuyer() { return getBuyers()[localStorage.getItem("ks_buyer_current")]; }
 
 function sendOtp() {
   const mobile = document.getElementById("mobile").value;
-  if (mobile.length !== 10 || isNaN(mobile)) {
+  if (!/^\d{10}$/.test(mobile)) {
     document.getElementById("msg").textContent = t("err_mobile");
     return;
   }
@@ -73,7 +73,7 @@ function renderList() {
     card.className = "card";
 
     const title = document.createElement("h2");
-    title.textContent = t("c_" + item.crop);
+    title.textContent = cropIcon[item.crop] + " " + t("c_" + item.crop);
 
     const info = document.createElement("p");
     info.textContent = item.qty + " " + t("quintal") + " · ₹" + item.price + " / " + t("quintal");

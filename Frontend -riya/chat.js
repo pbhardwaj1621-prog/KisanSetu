@@ -3,8 +3,8 @@ const role = params.get("as") || localStorage.getItem("ks_role") || "buyer";
 let me = null, threadKey = params.get("k") || null;
 
 (function init() {
-  if (role === "farmer") me = JSON.parse(localStorage.getItem("ks_users") || "{}")[localStorage.getItem("ks_current")];
-  else me = JSON.parse(localStorage.getItem("ks_buyers") || "{}")[localStorage.getItem("ks_buyer_current")];
+  if (role === "farmer") me = readJSON("ks_users", {})[localStorage.getItem("ks_current")];
+  else me = readJSON("ks_buyers", {})[localStorage.getItem("ks_buyer_current")];
   if (!me) {
     document.getElementById("threads").innerHTML =
       '<p class="msg">' + t("ch_login") + '</p><a class="bada" href="' + (role === "farmer" ? "farmer" : "buyer") + '.html">OK</a>';
@@ -44,7 +44,7 @@ function showInbox() {
     const card = document.createElement("div");
     card.className = "card";
     const h = document.createElement("h2");
-    h.textContent = (lst ? t("c_" + lst.crop) : "—") + " · " + (role === "buyer" && lst ? lst.name : th.buyerName);
+    h.textContent = (lst ? cropIcon[lst.crop] + " " + t("c_" + lst.crop) : "—") + " · " + (role === "buyer" && lst ? lst.name : th.buyerName);
     const last = th.msgs[th.msgs.length - 1];
     const p = document.createElement("p");
     p.textContent = th.deal ? t("ch_deal") + " ₹" + th.deal : last ? (last.offer ? t("ch_offered") + " ₹" + last.offer : last.text) : "…";
@@ -62,10 +62,27 @@ function backToInbox() { threadKey = null; history.replaceState(null, "", "chat.
 function showRoom() {
   document.getElementById("inbox").hidden = true;
   document.getElementById("room").hidden = false;
-  const th = getChats()[threadKey], lst = listingOf(th);
+  const th = getChats()[threadKey];
+  if (!th) { threadKey = null; showInbox(); return; }
+  const lst = listingOf(th);
   document.getElementById("roomhead").textContent = lst
     ? t("ch_with") + ": " + t("c_" + lst.crop) + " · " + lst.qty + " " + t("quintal") + " · ₹" + lst.price
     : "";
+  // quick one-tap questions and the offer box are hidden once a deal is final
+  document.getElementById("offerrow").hidden = !!th.deal;
+  document.getElementById("text").parentNode.hidden = !!th.deal;
+  document.querySelector("#room > button.bada").hidden = !!th.deal;
+  const quick = document.getElementById("quick");
+  quick.innerHTML = "";
+  if (!th.deal) ["ch_q1", "ch_q2", "ch_q3"].forEach(function (k) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = t(k);
+    b.onclick = function () { push({ text: t(k) }); };
+    quick.appendChild(b);
+  });
+  const offerEl = document.getElementById("offer");
+  if (lst && !offerEl.value) offerEl.placeholder = "₹" + lst.price;
+
   const box = document.getElementById("msgs");
   box.innerHTML = "";
   th.msgs.forEach(function (m, i) {
@@ -87,12 +104,23 @@ function showRoom() {
     d.className = "deal";
     d.textContent = t("ch_deal") + " ₹" + th.deal + " / " + t("quintal");
     box.appendChild(d);
+    const closed = document.createElement("div");
+    closed.className = "hint"; closed.textContent = t("ch_closed");
+    box.appendChild(closed);
+    confettiOnce(threadKey);
   }
   box.scrollTop = box.scrollHeight;
 }
 
+function confettiOnce(k) {       // celebrate a new deal only once per chat
+  if (sessionStorage.getItem("ks_cf_" + k)) return;
+  sessionStorage.setItem("ks_cf_" + k, "1");
+  confetti();
+}
+
 function push(msg) {
   const chats = getChats();
+  if (!chats[threadKey] || chats[threadKey].deal) return;     // chat closed or crop removed
   chats[threadKey].msgs.push(Object.assign({ from: role, time: Date.now() }, msg));
   saveChats(chats);
   showRoom();
@@ -108,13 +136,14 @@ function sendText() {
 function sendOffer() {
   const el = document.getElementById("offer");
   const v = Number(el.value);
-  if (!(v > 0)) { document.getElementById("cmsg").textContent = t("ch_err"); return; }
+  if (!(v > 0) || v > 1000000) { document.getElementById("cmsg").textContent = t("ch_err"); return; }
   document.getElementById("cmsg").textContent = "";
   el.value = "";
   push({ offer: v });
 }
 function acceptOffer(price) {
   const chats = getChats();
+  if (!chats[threadKey] || chats[threadKey].deal) return;
   chats[threadKey].deal = price;
   saveChats(chats);
   showRoom();

@@ -72,3 +72,52 @@ select{width:100%;box-sizing:border-box;padding:16px;font-size:22px;border:2px s
 .msgs .bada{font-size:18px;padding:12px;margin:4px 0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:420px){h1{font-size:28px}.bada{font-size:21px}}
+
+/* ================= v2 additions ================= */
+[hidden]{display:none!important}                       /* fixes: .bada/.row used to ignore the hidden attribute */
+:focus-visible{outline:3px solid #e0b800;outline-offset:2px}
+html{scroll-behavior:smooth}
+
+/* page + cards glide in */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+main{animation:rise .4s ease both}
+.card{animation:rise .35s ease both}
+.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.18s}.card:nth-child(n+5){animation-delay:.24s}
+
+/* crop chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.chip{font-size:18px;padding:10px 16px;border:2px solid #cfdccf;border-radius:30px;background:#fff;color:#14231a;cursor:pointer;transition:transform .12s,background .2s,border-color .2s}
+.chip:hover{border-color:#2f6b3a;transform:translateY(-2px)}
+.chip:active{transform:scale(.94)}
+.chip.on{background:#2f6b3a;border-color:#2f6b3a;color:#fff;font-weight:bold}
+#quick .chip{font-size:15px;padding:8px 12px}
+
+/* buttons */
+.small{display:inline-block;width:auto;padding:10px 18px;font-size:18px;margin:6px 6px 0 0}
+.danger{background:#c23b22;color:#fff}
+.danger.small,.bada.danger{border:none}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.btnrow .small{flex:1 1 120px;margin:6px 0 0;text-align:center}
+#jump{margin:10px auto}
+.notice.edit{background:#fff3c4;border:2px dashed #e0b800}
+
+/* price meter: green = fair zone, pin = your price */
+.meter{position:relative;height:14px;border-radius:10px;margin:18px 4px 6px;background:linear-gradient(90deg,#ffe0d6 0,#fff3c4 30%,#d6f0d6 40%,#d6f0d6 63%,#fff3c4 73%,#ffe0d6 100%)}
+.meter .pin{position:absolute;top:-6px;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:#2f6b3a;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);transition:left .35s}
+.meter.hi .pin{background:#c23b22}.meter.lo .pin{background:#e0b800}
+
+/* confirm pop-up */
+.overlay{position:fixed;inset:0;background:rgba(10,25,15,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.dialog{background:#fff;border-radius:18px;padding:22px;max-width:380px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.35);animation:pop .3s}
+.dialog h2{margin:0 0 8px}
+.dialog .bada{font-size:20px;padding:16px;margin:10px 0 0}
+
+/* confetti */
+.confetti{position:fixed;top:-12px;width:10px;height:14px;border-radius:2px;z-index:30;pointer-events:none;animation:fall 2s linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
+
+/* chat polish */
+.hint{margin:4px 0}
+.msgs .hint{align-self:center}
+@media (max-width:420px){.chip{font-size:16px;padding:9px 12px}}
