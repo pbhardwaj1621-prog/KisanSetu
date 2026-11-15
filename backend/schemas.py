@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from datetime import date
 class UserCreate(BaseModel):
     name: str
     email: str
@@ -25,6 +25,18 @@ class CropOut(CropCreate):
     model_config = {"from_attributes": True}
 
 class PriceRequest(BaseModel):
-    crop: str
     state: str
+    district: str
+    commodity: str
     month: int
+    year: int = date.today().year
+
+class OfferCreate(BaseModel):
+    crop_id: int
+    offered_price: float
+
+class OfferOut(OfferCreate):
+    id: int
+    buyer_id: int
+    status: str
+    model_config = {"from_attributes": True}

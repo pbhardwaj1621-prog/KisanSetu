@@ -5,14 +5,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from models import Base, engine, SessionLocal, User, Crop
-from schemas import UserCreate, UserOut, CropCreate, CropOut, PriceRequest
-
+from models import Base, engine, SessionLocal, User, Crop, Offer
+from schemas import UserCreate, UserOut, CropCreate, CropOut, PriceRequest, OfferCreate, OfferOut
+import joblib
+import pandas as pd
+from pathlib import Path
 SECRET_KEY = "change-this-secret-later"
 ALGORITHM = "HS256"
 
 Base.metadata.create_all(bind=engine)
-
+MODEL_PATH = Path(__file__).parent / "ml" / "pricemodel.pkl"
+price_model = joblib.load(MODEL_PATH)
 app = FastAPI(title="KisanSetu API")
 app.add_middleware(
     CORSMiddleware,
@@ -98,8 +101,53 @@ def delete_crop(crop_id: int, db: Session = Depends(get_db), user: User = Depend
     db.commit()
     return {"message": "Deleted"}
 
-# ---------- Price prediction ----------
 @app.post("/predict")
 def predict(data: PriceRequest):
-    # DUMMY for now. Replace with the real ML model later.
-    return {"crop": data.crop, "predicted_price_per_kg": 25.0}
+    if not 1 <= data.month <= 12:
+        raise HTTPException(400, "month must be between 1 and 12")
+    row = pd.DataFrame([{
+        "state": data.state,
+        "district": data.district,
+        "commodity": data.commodity,
+        "month": data.month,
+        "year": data.year,
+    }])
+    values = price_model.predict(row).flatten().tolist()
+    return {
+        "state": data.state,
+        "district": data.district,
+        "commodity": data.commodity,
+        "predicted_values": [round(v, 2) for v in values],
+    }
+
+# ---------- Offers ----------
+@app.post("/offers", response_model=OfferOut)
+def make_offer(data: OfferCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    if user.role != "buyer":
+        raise HTTPException(403, "Only buyers can make offers")
+    if data.offered_price <= 0:
+        raise HTTPException(400, "offered_price must be greater than 0")
+    crop = db.get(Crop, data.crop_id)
+    if not crop:
+        raise HTTPException(404, "Crop not found")
+    offer = Offer(crop_id=data.crop_id, buyer_id=user.id, offered_price=data.offered_price)
+    db.add(offer)
+    db.commit()
+    db.refresh(offer)
+    return offer
+
+@app.get("/offers/mine", response_model=list[OfferOut])
+def my_offers(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    return db.query(Offer).filter(Offer.buyer_id == user.id).all()
+
+@app.get("/offers/received", response_model=list[OfferOut])
+def received_offers(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    if user.role != "farmer":
+        raise HTTPException(403, "Only farmers can see received offers")
+    return (
+        db.query(Offer)
+        .join(Crop, Offer.crop_id == Crop.id)
+        .filter(Crop.farmer_id == user.id)
+        .all()
+    )
+

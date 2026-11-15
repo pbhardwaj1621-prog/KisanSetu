@@ -21,3 +21,11 @@ class Crop(Base):
     price_per_kg = Column(Float)
     location = Column(String)
     farmer_id = Column(Integer, ForeignKey("users.id"))
+
+class Offer(Base):
+    __tablename__ = "offers"
+    id = Column(Integer, primary_key=True)
+    crop_id = Column(Integer, ForeignKey("crops.id"))
+    buyer_id = Column(Integer, ForeignKey("users.id"))
+    offered_price = Column(Float)
+    status = Column(String, default="pending")
